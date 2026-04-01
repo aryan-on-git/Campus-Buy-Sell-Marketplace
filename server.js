@@ -44,6 +44,10 @@ app.get('/api/health', (req, res) => {
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// Product Routes
+const productRoutes = require('./routes/products');
+app.use('/api/products', productRoutes);
+
 // Error handling for undefined routes
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
