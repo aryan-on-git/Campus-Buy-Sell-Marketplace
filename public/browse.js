@@ -182,31 +182,102 @@ function displayProducts(products) {
   `).join('');
 }
 
-// Handle search
-function handleSearch() {
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+// Handle search with API
+async function handleSearch() {
+  const searchTerm = document.getElementById('searchInput').value;
   const category = document.getElementById('categoryFilter').value;
 
-  const filtered = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                         product.description.toLowerCase().includes(searchTerm);
-    const matchesCategory = category === '' || product.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  try {
+    showSpinner(true);
+    let url = `${API_URL}/products`;
+    const params = new URLSearchParams();
 
-  displayProducts(filtered);
+    if (searchTerm) {
+      params.append('search', searchTerm);
+    }
+    if (category) {
+      params.append('category', category);
+    }
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${currentToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Search failed');
+    }
+
+    const data = await response.json();
+    displayProducts(data.data || []);
+    showSpinner(false);
+  } catch (error) {
+    console.error('Error searching:', error);
+    // Fallback to client-side search
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+
+    const filtered = allProducts.filter(product => {
+      const matchesSearch = !searchTerm || 
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm);
+      const matchesCategory = !category || product.category === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    displayProducts(filtered);
+    showSpinner(false);
+  }
 }
 
-// Handle filter
-function handleFilter() {
-  handleSearch();
+// Handle filter by category with API
+async function handleFilter() {
+  const category = document.getElementById('categoryFilter').value;
+
+  try {
+    showSpinner(true);
+    let url = `${API_URL}/products`;
+
+    if (category) {
+      url = `${API_URL}/products/category/${category}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${currentToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Filter failed');
+    }
+
+    const data = await response.json();
+    displayProducts(data.data || []);
+    showSpinner(false);
+  } catch (error) {
+    console.error('Error filtering:', error);
+    // Fallback to client-side filter
+    if (category) {
+      const filtered = allProducts.filter(p => p.category === category);
+      displayProducts(filtered);
+    } else {
+      displayProducts(allProducts);
+    }
+    showSpinner(false);
+  }
 }
 
 // Clear filters
 function clearFilters() {
   document.getElementById('searchInput').value = '';
   document.getElementById('categoryFilter').value = '';
-  displayProducts(allProducts);
+  loadProducts();
 }
 
 // Open sell modal
@@ -248,20 +319,18 @@ async function handleCreateProduct(e) {
       throw new Error(data.message || 'Failed to create product');
     }
 
-    // Add to mock products for demo
-    allProducts.push({
-      ...data,
-      seller: { name: currentUser.name }
-    });
-
+    // Show success message
     messageDiv.textContent = 'Product listed successfully!';
     messageDiv.className = 'form-message success';
 
-    // Reset form and close modal
+    // Add to displayed products and reset form
+    allProducts.unshift(data.data);
     document.getElementById('sellForm').reset();
+    
     setTimeout(() => {
       document.getElementById('sellModal').classList.remove('show');
       displayProducts(allProducts);
+      messageDiv.textContent = '';
     }, 1500);
   } catch (error) {
     messageDiv.textContent = error.message;
