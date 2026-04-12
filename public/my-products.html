@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Products - CampusBuy</title>
+    <link rel="stylesheet" href="my-products.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>CampusBuy</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/browse.html" class="nav-link">Browse</a>
+                <a href="/my-products.html" class="nav-link active">My Products</a>
+                <div class="user-menu">
+                    <span id="userDisplayName" class="user-name">User</span>
+                    <button id="logoutBtn" class="btn-logout">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="page-header">
+            <h2>My Listings</h2>
+            <a href="/browse.html" class="btn-create-new">+ Create New Listing</a>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-bar">
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter" class="status-select">
+                <option value="">All Listings</option>
+                <option value="available">Available</option>
+                <option value="sold">Sold</option>
+            </select>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="spinner"></div>
+
+        <!-- Products Table -->
+        <div id="productsTable" class="products-table-container" style="display: none;">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Views</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsBody">
+                    <!-- Rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Products Message -->
+        <div id="noProducts" class="no-products" style="display: none;">
+            <p>You haven't listed any products yet!</p>
+            <a href="/browse.html" class="btn-create-new">Create Your First Listing</a>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductDescription">Description</label>
+                    <textarea id="editProductDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductCategory">Category</label>
+                    <select id="editProductCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="books">Books</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="sports">Sports Equipment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductPrice">Price (₹)</label>
+                    <input type="number" id="editProductPrice" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductCondition">Condition</label>
+                    <select id="editProductCondition" required>
+                        <option value="">Select Condition</option>
+                        <option value="new">New</option>
+                        <option value="like-new">Like New</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editProductStatus">Status</label>
+                    <select id="editProductStatus" required>
+                        <option value="true">Available</option>
+                        <option value="false">Sold</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit-edit">Save Changes</button>
+                <div id="editMessage" class="form-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content delete-modal">
+            <h2>Delete Product?</h2>
+            <p id="deleteProductName"></p>
+            <p class="warning">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn-delete-confirm">Delete</button>
+                <button id="cancelDeleteBtn" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 CampusBuy. All rights reserved.</p>
+    </footer>
+
+    <script src="my-products.js"></script>
+</body>
+</html>
