@@ -41,4 +41,35 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// Middleware to check if user owns the product
+const authorizeProductOwner = async (req, res, next) => {
+  try {
+    const Product = require('../models/Product');
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    // Check if user is the product owner
+    if (product.seller.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to perform this action'
+      });
+    }
+
+    req.product = product;
+    next();
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error checking authorization'
+    });
+  }
+};
+
+module.exports = { protect, authorizeProductOwner };

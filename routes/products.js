@@ -1,6 +1,6 @@
 const express = require('express');
 const Product = require('../models/Product');
-const { protect } = require('../middleware/auth');
+const { protect, authorizeProductOwner } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -193,6 +193,56 @@ router.get('/user/my-products', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || 'Error retrieving your products'
+    });
+  }
+});
+
+// @route   PUT /api/products/:id
+// @desc    Update a product (only by seller)
+// @access  Private
+router.put('/:id', protect, authorizeProductOwner, async (req, res) => {
+  try {
+    const { name, description, category, price, condition, isAvailable } = req.body;
+
+    // Update fields if provided
+    if (name) req.product.name = name;
+    if (description) req.product.description = description;
+    if (category) req.product.category = category.toLowerCase();
+    if (price !== undefined) req.product.price = price;
+    if (condition) req.product.condition = condition.toLowerCase();
+    if (isAvailable !== undefined) req.product.isAvailable = isAvailable;
+
+    req.product.updatedAt = Date.now();
+    await req.product.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product updated successfully',
+      data: req.product
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error updating product'
+    });
+  }
+});
+
+// @route   DELETE /api/products/:id
+// @desc    Delete a product (only by seller)
+// @access  Private
+router.delete('/:id', protect, authorizeProductOwner, async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error deleting product'
     });
   }
 });
